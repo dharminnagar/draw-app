@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "./config";
+import { JWT_SECRET } from "@repo/backend-common/config";
+import { CreateUserSchema } from "@repo/common/types";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 
@@ -11,16 +12,7 @@ const saltRounds = 10;
 app.get("/", (req, res) => {});
 
 app.post("/signup", async (req, res) => {
-  const schema = z.object({
-    username: z
-      .string()
-      .min(1, "Username is required")
-      .min(3, "Username should be between 3-10 lettters")
-      .max(10, "Username should be between 3-10 lettters"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-  });
-
-  const validation = schema.safeParse(req.body);
+  const validation = CreateUserSchema.safeParse(req.body);
 
   if (!validation.success) {
     res.status(411).json({
