@@ -61,8 +61,6 @@ wss.on("connection", function connection(ws, request) {
       if (user) {
         user.rooms.push(roomId);
       }
-
-      console.log("Users: ", users);
     }
 
     if (parsedData.type === "leave_room") {
@@ -76,8 +74,6 @@ wss.on("connection", function connection(ws, request) {
     }
 
     if (parsedData.type === "chat") {
-      console.log("chat", parsedData);
-
       const roomId = parsedData.roomId;
       const message = parsedData.message;
 
