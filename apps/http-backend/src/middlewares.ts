@@ -3,11 +3,11 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 
 interface IJwtPayload extends JwtPayload {
-  userId?: number;
+  userId?: string;
 }
 
 export function authMiddleware(
-  req: Request & { userId?: number },
+  req: Request & { userId?: string },
   res: Response,
   next: NextFunction
 ) {
@@ -17,7 +17,6 @@ export function authMiddleware(
 
   if (decoded) {
     req.userId = decoded.userId;
-
     next();
   } else {
     res.status(403).json({

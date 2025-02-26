@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import {
@@ -30,23 +30,26 @@ app.post("/signup", async (req, res) => {
 
   const username = req.body.username;
   const password = req.body.password;
+  const name = req.body.name || undefined;
 
   const encryptedPass = await bcrypt.hash(password, saltRounds);
 
   try {
-    await prismaClient.user.create({
+    const user = await prismaClient.user.create({
       data: {
         username: username,
         password: encryptedPass,
+        name: name,
       },
     });
 
     res.status(200).json({
+      userId: user.id,
       message: "Signup Sucessful",
     });
   } catch (e) {
     res.status(500).json({
-      message: "Server Error",
+      message: "User already exists with this username",
       error: e,
     });
   }
@@ -80,14 +83,17 @@ app.post("/login", async (req, res) => {
       ? await bcrypt.compare(password, user.password)
       : false;
     if (result) {
-      const token = jwt.sign({ id: user.id }, JWT_SECRET);
+      const token = jwt.sign(
+        {
+          userId: user?.id,
+        },
+        JWT_SECRET
+      );
 
       res.json({
         message: "Login Successful",
         token: token,
-
-        // TODO: Update this to use the userId from the database
-        userId: 1,
+        userId: user.id,
       });
     } else {
       res.status(403).json({
@@ -97,25 +103,43 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/room", authMiddleware, (req, res) => {
-  const { name } = req.body;
+app.post(
+  "/room",
+  authMiddleware,
+  async (req: Request & { userId?: string }, res) => {
+    const parsedData = CreateRoomSchema.safeParse(req.body);
 
-  const data = CreateRoomSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      res.status(411).json({
+        message: "Error in Inputs",
+        errors: parsedData.error.errors,
+      });
+      return;
+    }
 
-  if (!data.success) {
-    res.status(411).json({
-      message: "Error in Inputs",
-      errors: data.error.errors,
-    });
-    return;
+    // db call
+    const userId = req.userId || "";
+    console.log(userId);
+
+    try {
+      const room = await prismaClient.room.create({
+        data: {
+          slug: parsedData.data.name,
+          adminId: userId,
+        },
+      });
+
+      res.json({
+        roomId: room.id,
+      });
+    } catch (e) {
+      res.status(500).json({
+        message: "Server Error",
+        error: e,
+      });
+    }
   }
-
-  // db call
-
-  res.json({
-    roomId: 1,
-  });
-});
+);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
