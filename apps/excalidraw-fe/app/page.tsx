@@ -1,3 +1,4 @@
+"use client";
 import {
     Pencil,
     Share2,
@@ -9,8 +10,20 @@ import {
     Save,
     FileText,
 } from "lucide-react";
+import {
+    SignedIn,
+    SignedOut,
+    SignIn,
+    SignInButton,
+    SignOutButton,
+    UserButton,
+    useSession,
+} from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+    const router = useRouter();
+    const { isSignedIn } = useSession();
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-800">
             {/* Navigation */}
@@ -20,7 +33,7 @@ export default function Home() {
                         <div className="flex items-center">
                             <Pencil className="h-8 w-8 text-indigo-600" />
                             <span className="ml-2 text-xl font-bold text-indigo-600">
-                                ExcaliDraw
+                                DrawApp
                             </span>
                         </div>
                         <div className="flex items-center space-x-4">
@@ -30,9 +43,16 @@ export default function Home() {
                             <button className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none">
                                 Docs
                             </button>
-                            <button className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Start Drawing
-                            </button>
+
+                            {!isSignedIn && (
+                                <div className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <SignInButton mode="modal">
+                                        Start Drawing
+                                    </SignInButton>
+                                </div>
+                            )}
+
+                            {isSignedIn && <UserButton />}
                         </div>
                     </div>
                 </div>
@@ -94,8 +114,8 @@ export default function Home() {
                             Everything you need to visualize your ideas
                         </p>
                         <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                            ExcaliDraw provides a simple yet powerful set of
-                            tools to create diagrams that look hand-drawn.
+                            DrawApp provides a simple yet powerful set of tools
+                            to create diagrams that look hand-drawn.
                         </p>
                     </div>
 
@@ -180,11 +200,11 @@ export default function Home() {
                 <div className="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
                         <span className="block">Ready to start drawing?</span>
-                        <span className="block">Try ExcaliDraw today.</span>
+                        <span className="block">Try DrawApp today.</span>
                     </h2>
                     <p className="mt-4 text-lg leading-6 text-indigo-200">
                         Join thousands of users who are already creating
-                        beautiful diagrams with ExcaliDraw.
+                        beautiful diagrams with DrawApp.
                     </p>
                     <button className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 sm:w-auto">
                         Get Started
@@ -207,7 +227,7 @@ export default function Home() {
                         <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
                             <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                                 <p className="text-gray-600 italic">
-                                    "ExcaliDraw has completely changed how I
+                                    "DrawApp has completely changed how I
                                     communicate my ideas. The hand-drawn style
                                     makes my diagrams more approachable."
                                 </p>
@@ -258,8 +278,8 @@ export default function Home() {
 
                             <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
                                 <p className="text-gray-600 italic">
-                                    "As a developer, I use ExcaliDraw to sketch
-                                    out system architectures. It's simple yet
+                                    "As a developer, I use DrawApp to sketch out
+                                    system architectures. It's simple yet
                                     powerful enough for all my diagramming
                                     needs."
                                 </p>
@@ -450,14 +470,16 @@ export default function Home() {
                     <div className="mt-8 border-t border-gray-700 pt-8 md:flex md:items-center md:justify-between">
                         <div className="flex space-x-6 md:order-2">
                             <a
-                                href="#"
+                                href="https://github.com/dharminnagar/draw-app"
+                                target="_blank"
                                 className="text-gray-400 hover:text-gray-300"
                             >
                                 <span className="sr-only">GitHub</span>
                                 <Github className="h-6 w-6" />
                             </a>
                             <a
-                                href="#"
+                                href="https://x.com/dharminnagar"
+                                target="_blank"
                                 className="text-gray-400 hover:text-gray-300"
                             >
                                 <span className="sr-only">Twitter</span>
@@ -471,7 +493,7 @@ export default function Home() {
                             </a>
                         </div>
                         <p className="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
-                            &copy; 2025 ExcaliDraw. All rights reserved.
+                            &copy; 2025 DrawApp. All rights reserved.
                         </p>
                     </div>
                 </div>
